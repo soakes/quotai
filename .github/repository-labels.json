@@ -1,0 +1,77 @@
+[
+  {
+    "name": "breaking",
+    "color": "b60205",
+    "description": "Breaking changes"
+  },
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Bug fixes"
+  },
+  {
+    "name": "ci",
+    "color": "0e8a16",
+    "description": "CI and automation changes"
+  },
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Dependency updates"
+  },
+  {
+    "name": "major",
+    "color": "b60205",
+    "description": "Semver-major dependency updates"
+  },
+  {
+    "name": "minor",
+    "color": "fbca04",
+    "description": "Semver-minor dependency updates"
+  },
+  {
+    "name": "patch",
+    "color": "0e8a16",
+    "description": "Semver-patch dependency updates"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Documentation changes"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "New features and improvements"
+  },
+  {
+    "name": "github-actions",
+    "color": "2088ff",
+    "description": "GitHub Actions updates"
+  },
+  {
+    "name": "maintenance",
+    "color": "cfd3d7",
+    "description": "Maintenance, refactors, and tests"
+  },
+  {
+    "name": "python",
+    "color": "3776ab",
+    "description": "Python runtime or packaging changes"
+  },
+  {
+    "name": "release",
+    "color": "5319e7",
+    "description": "Release workflow changes"
+  },
+  {
+    "name": "security",
+    "color": "ee0701",
+    "description": "Security fixes"
+  },
+  {
+    "name": "skip-changelog",
+    "color": "ffffff",
+    "description": "Exclude from generated changelog"
+  }
+]
