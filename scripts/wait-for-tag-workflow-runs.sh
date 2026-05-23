@@ -25,7 +25,7 @@ wait_for_workflow() {
         --workflow "${workflow}" \
         --json databaseId,headSha,status,conclusion,event,headBranch \
         --limit 50 \
-        --jq "(map(select(.headSha == \"${sha}\" and .event == \"push\" and .headBranch == \"${tag}\")) | first // empty) | [.databaseId, .status, (.conclusion // \"\")] | @tsv"
+        --jq "(map(select(.headSha == \"${sha}\" and ((.event == \"push\" and .headBranch == \"${tag}\") or .event == \"workflow_dispatch\"))) | first // empty) | [.databaseId, .status, (.conclusion // \"\")] | @tsv"
     )"
 
     if [ -z "${run_fields}" ] || [ "${run_fields}" = "null" ]; then

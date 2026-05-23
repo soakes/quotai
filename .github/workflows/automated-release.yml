@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  actions: read
+  actions: write
   contents: write
 
 jobs:
@@ -97,6 +97,24 @@ jobs:
             fi
             exit 1
           fi
+
+      - name: Dispatch prerelease publish workflow
+        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${RELEASE_AUTOMATION_TOKEN:-}" ]; then
+            echo "RELEASE_AUTOMATION_TOKEN is configured; tag push events should trigger release publishing."
+            exit 0
+          fi
+
+          gh workflow run release-assets.yml \
+            --ref "${DEFAULT_BRANCH}" \
+            -f release_ref="${{ steps.candidate.outputs.candidate_tag }}"
 
       - name: Wait for prerelease publish workflow
         if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true'
