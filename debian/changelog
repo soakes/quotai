@@ -1,3 +1,9 @@
+quotai (1.1.1-1) stable; urgency=medium
+
+  * Add retry loop for homebrew formula SHA256 download.
+
+ -- Simon Oakes <813389+soakes@users.noreply.github.com>  Sat, 23 May 2026 17:39:08 +0000
+
 quotai (1.1.0-1) stable; urgency=medium
 
   * Add Homebrew formula and publish workflow.
