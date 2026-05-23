@@ -58,27 +58,35 @@ $ quotai --json | jq '.quotas[0].resets_at_utc'
       </section>
 
       <section class="metadata wrapper">
-        <div class="metadata-panel">
-          <div>
-            <span class="meta-label">Latest stable</span>
-            <strong id="ui-version">Loading...</strong>
+        <div class="section-heading">
+          <p class="eyebrow">Release details</p>
+          <h2>Latest stable build information.</h2>
+        </div>
+        <div class="release-card">
+          <div class="release-card-header">
+            <div class="release-tag">
+              <span class="meta-label">Version</span>
+              <strong id="ui-version">Loading...</strong>
+            </div>
+            <div class="release-commit">
+              <span class="meta-label">Commit</span>
+              <strong class="mono" id="ui-commit">---</strong>
+            </div>
+            <div class="release-date">
+              <span class="meta-label">Published</span>
+              <strong id="ui-date">---</strong>
+            </div>
           </div>
-          <div>
-            <span class="meta-label">Commit</span>
-            <strong class="mono" id="ui-commit">---</strong>
-          </div>
-          <div>
-            <span class="meta-label">Published</span>
-            <strong id="ui-date">---</strong>
+          <div class="release-card-body">
+            <div class="fingerprint">
+              <span class="meta-label">APT signing fingerprint</span>
+              <code id="ui-fingerprint">---</code>
+            </div>
+            <ul id="ui-highlights" class="highlights">
+              <li>Loading release highlights...</li>
+            </ul>
           </div>
         </div>
-        <div class="fingerprint">
-          <span class="meta-label">APT signing fingerprint</span>
-          <code id="ui-fingerprint">---</code>
-        </div>
-        <ul id="ui-highlights" class="highlights">
-          <li>Loading release highlights...</li>
-        </ul>
       </section>
 
       <section id="install" class="install wrapper">

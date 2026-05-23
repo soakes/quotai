@@ -272,7 +272,7 @@ jobs:
 
       - name: Publish durable repository snapshot branch
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           snapshot_root="$(mktemp -d)"
           trap 'rm -rf "${snapshot_root}"' EXIT
