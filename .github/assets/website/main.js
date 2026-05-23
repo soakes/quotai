@@ -216,5 +216,26 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(() => {
       // Keep build-time defaults when metadata is unavailable in local previews.
-    });
+});
+
+document.querySelectorAll('.tab-bar').forEach((bar) => {
+  bar.addEventListener('click', (event) => {
+    const button = event.target.closest('.tab');
+    if (!button) {
+      return;
+    }
+
+    const tabId = button.dataset.tab;
+    const container = bar.closest('.install-tabs');
+
+    container.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+    container.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+
+    button.classList.add('active');
+    const panel = container.querySelector(`#panel-${tabId}`);
+    if (panel) {
+      panel.classList.add('active');
+    }
+  });
+});
 });
