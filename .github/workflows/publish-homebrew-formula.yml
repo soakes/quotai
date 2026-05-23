@@ -76,7 +76,15 @@ jobs:
         run: |
           version="${RELEASE_REF#v}"
           tarball="quotai-${version}.tar.gz"
-          checksums="$(gh release download "${RELEASE_REF}" --pattern 'sha256sums.txt' --output -)"
+
+          for attempt in $(seq 1 12); do
+            if checksums="$(gh release download "${RELEASE_REF}" --pattern 'sha256sums.txt' --output - 2>/dev/null)"; then
+              break
+            fi
+            echo "Waiting for release assets (attempt ${attempt}/12)..."
+            sleep 10
+          done
+
           sha256="$(echo "${checksums}" | grep -F "${tarball}" | awk '{print $1}')"
 
           if [ -z "${sha256}" ]; then
