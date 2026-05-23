@@ -57,10 +57,17 @@ The script has no runtime dependencies outside the Python standard library.
 - Watch mode for a live refreshing quota dashboard
 - Threshold mode with a separate exit code for cron and shell scripts
 - Timezone control through `--timezone` or `ZAI_TIMEZONE`
-- Installable as a signed Debian package, single executable script, or Python package
+- Installable as a Homebrew formula, signed Debian package, single executable script, or Python package
 
 <a id="installation"></a>
 ## 🚀 Installation
+
+### Homebrew (macOS and Linux)
+
+```bash
+brew tap soakes/quotai
+brew install quotai
+```
 
 ### Signed APT Repository
 
@@ -259,6 +266,7 @@ quotai/
 ├── quotai.py                 # CLI application
 ├── tests/                    # Stdlib unittest coverage
 ├── debian/                   # Debian package metadata
+├── homebrew/                 # Homebrew formula template
 ├── docs/                     # Usage and release documentation
 ├── scripts/                  # Release helper scripts
 ├── .github/

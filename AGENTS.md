@@ -10,6 +10,7 @@ windows.
   deliberately adopts another test runner.
 - Keep user-facing docs in `README.md` and `docs/`.
 - Keep Debian packaging metadata in `debian/`.
+- Keep Homebrew formula in `homebrew/`.
 - Keep release helper scripts in `scripts/`.
 - Keep GitHub Actions, labels, Dependabot, and release-drafter metadata under
   `.github/`.
@@ -108,9 +109,11 @@ windows.
   `.github/release-drafter.yml` and `scripts/next-release.sh`; update them
   together.
 - The release automation publishes a source archive, Debian package, Debian
-  source package files, `sha256sums.txt`, and a signed stable APT repository on
-  GitHub Pages.
+  source package files, `sha256sums.txt`, a signed stable APT repository on
+  GitHub Pages, and an updated Homebrew formula to the `homebrew-quotai` tap.
 - Keep APT keyring filenames under the `quotai-archive-keyring.*` pattern.
+- Keep `homebrew/quotai.rb` as the formula template. The publish workflow updates
+  the URL and SHA256 and pushes to `soakes/homebrew-quotai`.
 - Keep `Makefile` as the contributor-facing source of truth for common local
   validation commands.
 

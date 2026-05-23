@@ -1,0 +1,118 @@
+name: Publish Homebrew Formula
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Stable release tag to publish, for example v1.0.0
+        required: false
+        type: string
+
+concurrency:
+  group: publish-homebrew-${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.release_ref || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CHECKOUT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.sha }}
+  RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.ref_name }}
+
+jobs:
+  verify-release-tag:
+    name: Verify Release Tag
+    if: |
+      (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc.')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_ref || '', 'v') && !contains(inputs.release_ref || '', '-rc.'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Ensure release tag points to main
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          default_branch="${DEFAULT_BRANCH}"
+          release_commit="$(git rev-parse HEAD^0)"
+
+          git fetch origin "${default_branch}:refs/remotes/origin/${default_branch}" --force
+          git merge-base --is-ancestor "${release_commit}" "refs/remotes/origin/${default_branch}"
+
+      - name: Ensure source versions match release tag
+        run: bash scripts/check-version-consistency.sh "${RELEASE_REF}"
+
+  publish:
+    name: Publish Homebrew Formula
+    if: |
+      (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc.')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_ref || '', 'v') && !contains(inputs.release_ref || '', '-rc.'))
+    needs:
+      - verify-release-tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Resolve release tarball SHA256
+        id: formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${RELEASE_REF#v}"
+          tarball="quotai-${version}.tar.gz"
+          checksums="$(gh release download "${RELEASE_REF}" --pattern 'sha256sums.txt' --output -)"
+          sha256="$(echo "${checksums}" | grep -F "${tarball}" | awk '{print $1}')"
+
+          if [ -z "${sha256}" ]; then
+            echo "Could not find SHA256 for ${tarball} in release checksums" >&2
+            exit 1
+          fi
+
+          {
+            echo "version=${version}"
+            echo "sha256=${sha256}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Update formula and publish to tap
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN || github.token }}
+        run: |
+          version="${{ steps.formula.outputs.version }}"
+          sha256="${{ steps.formula.outputs.sha256 }}"
+          tap_repo="${{ github.repository_owner }}/homebrew-quotai"
+
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "${tmpdir}"' EXIT
+
+          gh repo clone "${tap_repo}" "${tmpdir}/tap" -- --depth=1
+          mkdir -p "${tmpdir}/tap/Formula"
+
+          sed \
+            -e "s|^  url \".*\"|  url \"https://github.com/${{ github.repository }}/releases/download/v${version}/quotai-${version}.tar.gz\"|" \
+            -e "s|^  sha256 \".*\"|  sha256 \"${sha256}\"|" \
+            homebrew/quotai.rb > "${tmpdir}/tap/Formula/quotai.rb"
+
+          cd "${tmpdir}/tap"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/quotai.rb
+          git diff --cached --quiet && echo "No formula changes" && exit 0
+          git commit -m "quotai ${version}"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${tap_repo}.git"
+          git push

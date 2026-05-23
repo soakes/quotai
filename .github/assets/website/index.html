@@ -95,9 +95,18 @@ $ quotai --json | jq '.quotas[0].resets_at_utc'
       <section id="install" class="install wrapper">
         <div class="section-heading">
           <p class="eyebrow">Install paths</p>
-          <h2>Use the signed APT repository or the release archive.</h2>
+          <h2>Install via Homebrew, APT, or download the release archive.</h2>
         </div>
         <div class="install-grid">
+          <article class="install-card">
+            <h3>Homebrew</h3>
+            <p>Recommended for macOS and Linux. Receives automatic updates on each stable release.</p>
+            <div class="code-block">
+<pre><code>brew tap soakes/quotai
+brew install quotai</code></pre>
+            </div>
+          </article>
+
           <article class="install-card">
             <h3>Signed APT</h3>
             <p>Recommended for Debian and Ubuntu hosts that should receive stable package updates.</p>
