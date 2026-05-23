@@ -338,14 +338,68 @@ code,
   line-height: 1;
 }
 
-.install-grid {
+.install-primary {
+  margin-bottom: 1.5rem;
+}
+
+.install-card-primary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.install-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.install-badge {
+  display: inline-block;
+  width: fit-content;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--green);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.install-card-primary .code-block {
+  margin: 0;
+}
+
+.install-card-primary h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.install-card-primary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.install-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
 }
 
 .install-card {
-  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 1.5rem;
 }
 
 .install-card p {
@@ -457,7 +511,8 @@ code,
 
   .masthead,
   .hero,
-  .install-grid,
+  .install-card-primary,
+  .install-secondary,
   .release-grid {
     grid-template-columns: 1fr;
   }

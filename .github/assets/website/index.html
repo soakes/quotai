@@ -97,19 +97,23 @@ $ quotai --json | jq '.quotas[0].resets_at_utc'
           <p class="eyebrow">Install paths</p>
           <h2>Install via Homebrew, APT, or download the release archive.</h2>
         </div>
-        <div class="install-grid">
-          <article class="install-card">
-            <h3>Homebrew</h3>
-            <p>Recommended for macOS and Linux. Receives automatic updates on each stable release.</p>
+        <div class="install-primary">
+          <article class="install-card-primary">
+            <div class="install-card-header">
+              <span class="install-badge">Recommended</span>
+              <h3>Homebrew</h3>
+              <p>macOS and Linux. Receives automatic updates on each stable release.</p>
+            </div>
             <div class="code-block">
 <pre><code>brew tap soakes/quotai
 brew install quotai</code></pre>
             </div>
           </article>
-
+        </div>
+        <div class="install-secondary">
           <article class="install-card">
             <h3>Signed APT</h3>
-            <p>Recommended for Debian and Ubuntu hosts that should receive stable package updates.</p>
+            <p>Debian and Ubuntu hosts with stable package updates.</p>
             <div class="code-block" id="apt-code-container">
 <pre><code>sudo install -d -m 0755 /etc/apt/keyrings
 curl -fsSL https://soakes.github.io/quotai/quotai-archive-keyring.gpg \
@@ -129,7 +133,7 @@ sudo apt update && sudo apt install quotai</code></pre>
 
           <article class="install-card">
             <h3>Release archive</h3>
-            <p>Drop the standalone script onto any machine with Python 3.12 or newer.</p>
+            <p>Any machine with Python 3.12 or newer.</p>
             <div class="code-block" id="archive-code-container">
 <pre><code>curl -fsSL https://github.com/soakes/quotai/releases/latest/download/quotai-1.0.0.tar.gz -o quotai.tar.gz
 tar -xzf quotai.tar.gz
