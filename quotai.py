@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Z.ai quota monitor with human-friendly, JSON, and raw output formats."""
+"""QuotAI - Z.ai quota monitor with human-friendly, JSON, and raw output formats.
+
+Copyright (c) 2026 Simon Oakes
+MIT License - see https://github.com/soakes/quotai/blob/main/LICENSE
+"""
 
 from __future__ import annotations
 
