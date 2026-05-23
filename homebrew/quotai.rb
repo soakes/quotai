@@ -5,7 +5,7 @@ class Quotai < Formula
   sha256 "f8cbf0634b3ff0d9d32ecd2fa3affdcce2cf7da16709d727932f5ae6b027e3d9"
   license "MIT"
 
-  depends_on "python@3.10"
+  depends_on "python@3.13"
 
   def install
     bin.install "quotai.py" => "quotai"
