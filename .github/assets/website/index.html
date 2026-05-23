@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="quotai - terminal and Debian-packaged Z.ai quota visibility with exact reset windows." />
+    <meta name="theme-color" content="#101820" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>quotai | Z.ai quota reset visibility</title>
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <header class="masthead wrapper">
+      <a class="brand" href="#" id="site-url-link">
+        <span class="brand-mark">Q</span>
+        <span>
+          <strong>quotai</strong>
+          <small>Z.ai quota visibility</small>
+        </span>
+      </a>
+      <nav class="masthead-links">
+        <a href="https://github.com/soakes/quotai/releases">Releases</a>
+        <a href="#" id="nav-apt-link">APT</a>
+        <a href="https://github.com/soakes/quotai#readme">README</a>
+        <a href="https://github.com/soakes/quotai">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero wrapper">
+        <div class="hero-copy">
+          <p class="eyebrow">Quota windows without guesswork</p>
+          <h1>See exactly when your Z.ai quota resets.</h1>
+          <p class="hero-lead">
+            quotai turns sparse usage charts into a terminal view with exact
+            rolling reset times, local timezone rendering, and JSON fields for
+            automation.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#install">Install</a>
+            <a class="btn btn-secondary" href="https://github.com/soakes/quotai/releases">Download release</a>
+          </div>
+        </div>
+
+        <aside class="terminal-shot" aria-label="quotai terminal output preview">
+          <div class="terminal-top">
+            <span></span><span></span><span></span>
+          </div>
+          <pre><code>$ quotai --compact
+Plan: pro
+  5h-rolling   [████████░░]  82%  left: 180.0k  reset: 42m
+  weekly       [██░░░░░░░░]  21%  left:   7.9M  reset: 5d 18h
+  tool/search  [░░░░░░░░░░]   0%  left:   1.0k  reset: 29d
+
+$ quotai --json | jq '.quotas[0].resets_at_utc'
+"2026-05-23T14:00:00Z"</code></pre>
+        </aside>
+      </section>
+
+      <section class="metadata wrapper">
+        <div class="metadata-panel">
+          <div>
+            <span class="meta-label">Latest stable</span>
+            <strong id="ui-version">Loading...</strong>
+          </div>
+          <div>
+            <span class="meta-label">Commit</span>
+            <strong class="mono" id="ui-commit">---</strong>
+          </div>
+          <div>
+            <span class="meta-label">Published</span>
+            <strong id="ui-date">---</strong>
+          </div>
+        </div>
+        <div class="fingerprint">
+          <span class="meta-label">APT signing fingerprint</span>
+          <code id="ui-fingerprint">---</code>
+        </div>
+        <ul id="ui-highlights" class="highlights">
+          <li>Loading release highlights...</li>
+        </ul>
+      </section>
+
+      <section id="install" class="install wrapper">
+        <div class="section-heading">
+          <p class="eyebrow">Install paths</p>
+          <h2>Use the signed APT repository or the release archive.</h2>
+        </div>
+        <div class="install-grid">
+          <article class="install-card">
+            <h3>Signed APT</h3>
+            <p>Recommended for Debian and Ubuntu hosts that should receive stable package updates.</p>
+            <div class="code-block" id="apt-code-container">
+<pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://soakes.github.io/quotai/quotai-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/quotai-archive-keyring.gpg >/dev/null
+
+sudo tee /etc/apt/sources.list.d/quotai.sources >/dev/null &lt;&lt;'EOF'
+Types: deb deb-src
+URIs: https://soakes.github.io/quotai/
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/quotai-archive-keyring.gpg
+EOF
+
+sudo apt update && sudo apt install quotai</code></pre>
+            </div>
+          </article>
+
+          <article class="install-card">
+            <h3>Release archive</h3>
+            <p>Drop the standalone script onto any machine with Python 3.10 or newer.</p>
+            <div class="code-block" id="archive-code-container">
+<pre><code>curl -fsSL https://github.com/soakes/quotai/releases/latest/download/quotai-1.0.0.tar.gz -o quotai.tar.gz
+tar -xzf quotai.tar.gz
+sudo install -m 0755 quotai-1.0.0/quotai.py /usr/local/bin/quotai</code></pre>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer wrapper">
+      <p><strong>quotai</strong> ships exact quota reset visibility for Z.ai users.</p>
+      <p>Release <span id="footer-version">---</span> from commit <span id="footer-commit" class="mono">---</span>.</p>
+    </footer>
+  </body>
+</html>
