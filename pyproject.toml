@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quotai"
-version = "2.0.0"
+version = "1.0.0"
 description = "A small CLI for showing exact Z.ai quota usage and reset windows."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -46,7 +46,7 @@ dev = [
 quotai = "quotai:main"
 
 [project.urls]
-Homepage = "https://github.com/soakes/quotai"
+Homepage = "https://soakes.github.io/quotai/"
 Issues = "https://github.com/soakes/quotai/issues"
 Source = "https://github.com/soakes/quotai"
 

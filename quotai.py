@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 API_URL = "https://api.z.ai/api/monitor/usage/quota/limit"
 DEFAULT_TIMEZONE = "Europe/London"
 REQUEST_TIMEOUT_SECONDS = 20
-VERSION = "2.0.0"
+VERSION = "1.0.0"
 
 JsonDict = dict[str, Any]
 
