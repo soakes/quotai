@@ -1,4 +1,4 @@
-# 📊 Quotai
+# 📊 QuotAI
 
 > A small terminal CLI for showing Z.ai quota usage, remaining capacity, and exact reset times.
 
