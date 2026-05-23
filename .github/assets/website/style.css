@@ -348,63 +348,63 @@ code,
 }
 
 .site-footer {
-  margin-top: 3rem;
+  margin-top: 2rem;
   border-top: 1px solid var(--line);
   background: var(--panel);
 }
 
 .footer-inner {
-  padding: 3.5rem 0 2rem;
+  padding: 2rem 0 1.5rem;
 }
 
 .footer-top {
   display: flex;
   justify-content: space-between;
-  gap: 3rem;
+  gap: 2rem;
 }
 
 .footer-about {
-  max-width: 320px;
+  max-width: 280px;
 }
 
 .footer-about p {
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
 }
 
 .footer-logo {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.6rem;
 }
 
 .footer-logo .brand-mark {
-  width: 32px;
-  height: 32px;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  border-radius: 7px;
 }
 
 .footer-logo strong {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
 }
 
 .footer-columns {
   display: flex;
-  gap: 3rem;
+  gap: 2.5rem;
 }
 
 .footer-col {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .footer-col h4 {
-  margin: 0 0 0.25rem;
-  font-size: 0.75rem;
+  margin: 0 0 0.15rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
@@ -413,7 +413,7 @@ code,
 .footer-col a {
   color: var(--text);
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   opacity: 0.7;
   transition: opacity 0.15s;
 }
@@ -426,10 +426,10 @@ code,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--line);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
