@@ -15,9 +15,10 @@ pool_dir="${site_root}/pool/${component}/${package_group}/${package}"
 dist_root="dists/${suite}"
 release_architectures="all amd64 arm64 armhf"
 architectures=(all amd64 arm64 armhf)
+artifact_dir="$(mktemp -d)"
+trap 'rm -rf "${artifact_dir}"' EXIT
 
 rm -rf "${site_root:?}/${dist_root}" "${pool_dir}"
-mkdir -p "${pool_dir}"
 
 if [ ! -f "../${package}_${upstream_version}.orig.tar.gz" ]; then
   echo "Creating upstream source tarball ${package}_${upstream_version}.orig.tar.gz"
@@ -38,13 +39,16 @@ find .. -maxdepth 1 -type f \
     -name '*.debian.tar.*' -o \
     -name '*.diff.gz' \
   \) \
-  -exec mv {} "${pool_dir}/" \;
+  -exec mv {} "${artifact_dir}/" \;
 find .. -maxdepth 1 -type f \( -name '*.changes' -o -name '*.buildinfo' \) -delete
 
 echo "Building Debian binary package"
 dpkg-buildpackage -us -uc -b
-find .. -maxdepth 1 -type f -name '*.deb' -exec mv {} "${pool_dir}/" \;
+find .. -maxdepth 1 -type f -name '*.deb' -exec mv {} "${artifact_dir}/" \;
 find .. -maxdepth 1 -type f \( -name '*.changes' -o -name '*.buildinfo' \) -delete
+
+mkdir -p "${pool_dir}"
+find "${artifact_dir}" -maxdepth 1 -type f -exec mv {} "${pool_dir}/" \;
 
 pushd "${site_root}" >/dev/null
 for arch in "${architectures[@]}"; do
