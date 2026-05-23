@@ -62,26 +62,29 @@ $ quotai --json | jq '.quotas[0].resets_at_utc'
           <p class="eyebrow">Release details</p>
           <h2>Latest stable build information.</h2>
         </div>
-        <div class="release-card">
-          <div class="release-card-header">
-            <div class="release-tag">
-              <span class="meta-label">Version</span>
-              <strong id="ui-version">Loading...</strong>
+        <div class="release-grid">
+          <div class="release-info">
+            <div class="release-stats">
+              <div class="release-stat">
+                <span class="stat-value" id="ui-version">Loading...</span>
+                <span class="stat-label">Version</span>
+              </div>
+              <div class="release-stat">
+                <span class="stat-value mono" id="ui-commit">---</span>
+                <span class="stat-label">Commit</span>
+              </div>
+              <div class="release-stat">
+                <span class="stat-value" id="ui-date">---</span>
+                <span class="stat-label">Published</span>
+              </div>
             </div>
-            <div class="release-commit">
-              <span class="meta-label">Commit</span>
-              <strong class="mono" id="ui-commit">---</strong>
-            </div>
-            <div class="release-date">
-              <span class="meta-label">Published</span>
-              <strong id="ui-date">---</strong>
-            </div>
-          </div>
-          <div class="release-card-body">
-            <div class="fingerprint">
-              <span class="meta-label">APT signing fingerprint</span>
+            <div class="fingerprint-row">
+              <span class="fingerprint-label">APT signing key</span>
               <code id="ui-fingerprint">---</code>
             </div>
+          </div>
+          <div class="release-highlights">
+            <span class="highlights-title">Release highlights</span>
             <ul id="ui-highlights" class="highlights">
               <li>Loading release highlights...</li>
             </ul>
