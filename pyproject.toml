@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quotai"
+version = "2.0.0"
+description = "A small CLI for showing exact Z.ai quota usage and reset windows."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "soakes" },
+]
+keywords = [
+  "cli",
+  "quota",
+  "usage",
+  "z.ai",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: System :: Monitoring",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "black>=24.0",
+  "build>=1.2",
+  "pylint>=3.0",
+  "ruff>=0.5",
+]
+
+[project.scripts]
+quotai = "quotai:main"
+
+[project.urls]
+Homepage = "https://github.com/soakes/quotai"
+Issues = "https://github.com/soakes/quotai/issues"
+Source = "https://github.com/soakes/quotai"
+
+[tool.setuptools]
+py-modules = ["quotai"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pylint.main]
+py-version = "3.10"
+jobs = 0
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.messages_control]
+disable = [
+  "fixme",
+  "broad-exception-caught",
+]
+
+[tool.pylint.basic]
+good-names = [
+  "d",
+  "e",
+  "n",
+  "tz",
+  "pct",
+]
