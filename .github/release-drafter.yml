@@ -14,6 +14,9 @@ categories:
   - title: "Fixes"
     labels:
       - bug
+  - title: "Packaging and Delivery"
+    labels:
+      - packaging
   - title: "Release Workflow"
     labels:
       - release
@@ -28,10 +31,15 @@ categories:
   - title: "Documentation"
     labels:
       - documentation
+      - website
   - title: "Maintenance"
     labels:
       - maintenance
 version-resolver:
+  # Documentation, CI, website, and maintenance labels can still appear in
+  # grouped release notes when they ship alongside release-bearing work, but
+  # `scripts/next-release.sh` is the gating source of truth for whether a new
+  # draft or tag should exist at all.
   major:
     labels:
       - breaking
@@ -42,6 +50,7 @@ version-resolver:
     labels:
       - bug
       - dependencies
+      - packaging
       - release
       - security
   default: patch
@@ -70,6 +79,7 @@ autolabeler:
       - "README.md"
       - "docs/**/*"
       - "**/*.md"
+      - "debian/*.1"
   - label: ci
     title:
       - '/^ci(\([^)]+\))?:/i'
@@ -79,12 +89,15 @@ autolabeler:
       - '/^fix\(release\):/i'
       - '/^release(\([^)]+\))?:/i'
     files:
+      - "scripts/check-version-consistency.sh"
       - "scripts/next-release.sh"
       - "scripts/generate-release-notes.sh"
+      - "scripts/generate-website-highlights.sh"
       - "scripts/wait-for-tag-workflow-runs.sh"
       - ".github/release-drafter.yml"
       - ".github/workflows/automated-release.yml"
       - ".github/workflows/promote-release.yml"
+      - ".github/workflows/publish-apt-repository.yml"
       - ".github/workflows/release-assets.yml"
   - label: dependencies
     branch:
@@ -101,6 +114,22 @@ autolabeler:
       - "quotai.py"
       - "tests/**/*"
       - "pyproject.toml"
+  - label: packaging
+    title:
+      - '/^(packaging|build)(\([^)]+\))?:/i'
+    files:
+      - "debian/**/*"
+      - "scripts/build-apt-repository.sh"
+      - "scripts/prepare-debian-changelog.sh"
+      - "scripts/update-debian-changelog.sh"
+      - "scripts/update-release-metadata.sh"
+      - ".github/workflows/publish-apt-repository.yml"
+  - label: website
+    title:
+      - '/^website(\([^)]+\))?:/i'
+    files:
+      - ".github/assets/website/**/*"
+      - ".github/workflows/deploy-pages-site.yml"
   - label: maintenance
     title:
       - '/^(chore|refactor|test)(\([^)]+\))?:/i'
@@ -112,4 +141,6 @@ template: |
   ## Published Artifacts
 
   - `quotai-$RESOLVED_VERSION.tar.gz`
+  - Debian package `quotai_$RESOLVED_VERSION-1_all.deb` and Debian source package files
+  - Stable releases also publish the signed GitHub Pages APT repository
   - `sha256sums.txt`

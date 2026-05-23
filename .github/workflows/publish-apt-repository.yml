@@ -1,0 +1,313 @@
+name: Publish Signed Debian Repository
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Stable release tag to publish with the current workflow definition, for example v1.0.0
+        required: false
+        type: string
+
+concurrency:
+  group: publish-apt-repository-${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.release_ref || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CHECKOUT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.sha }}
+  RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.ref_name }}
+  WEBSITE_DIR: .github/assets/website
+
+jobs:
+  verify-release-tag:
+    name: Verify Release Tag
+    if: |
+      (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc.')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_ref || '', 'v') && !contains(inputs.release_ref || '', '-rc.'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Ensure release tag points to main
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          default_branch="${DEFAULT_BRANCH}"
+          release_commit="$(git rev-parse HEAD^0)"
+
+          git fetch origin "${default_branch}:refs/remotes/origin/${default_branch}" --force
+          git merge-base --is-ancestor "${release_commit}" "refs/remotes/origin/${default_branch}"
+
+      - name: Ensure source versions match release tag
+        run: bash scripts/check-version-consistency.sh "${RELEASE_REF}"
+
+  build:
+    name: Build Signed Debian Repository
+    if: |
+      (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc.')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_ref || '', 'v') && !contains(inputs.release_ref || '', '-rc.'))
+    needs:
+      - verify-release-tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+    environment:
+      name: apt-repository
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+        with:
+          enablement: true
+
+      - name: Compute build metadata
+        id: meta
+        run: |
+          {
+            echo "version=${RELEASE_REF}"
+            echo "commit=$(git rev-parse HEAD)"
+            echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "site_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build APT repository in Debian trixie
+        run: |
+          docker run --rm \
+            -e DEBIAN_FRONTEND=noninteractive \
+            -e HOST_UID="$(id -u)" \
+            -e HOST_GID="$(id -g)" \
+            -e VERSION=${{ steps.meta.outputs.version }} \
+            -e COMMIT=${{ steps.meta.outputs.commit }} \
+            -e BUILD_DATE=${{ steps.meta.outputs.build_date }} \
+            -v "$PWD:/src" \
+            -w /src \
+            debian:trixie \
+            bash -euo pipefail -lc '
+              apt-get update
+              apt-get install -y apt-utils debhelper build-essential devscripts dpkg-dev git xz-utils python3
+              build_root="$(mktemp -d)"
+              trap '\''rm -rf "${build_root}"'\'' EXIT
+              git config --global --add safe.directory /src
+              git config --global --add safe.directory /src/.git
+              git clone --quiet --no-local /src "${build_root}/source"
+              git config --global --add safe.directory "${build_root}/source"
+              cd "${build_root}/source"
+              bash scripts/check-version-consistency.sh "${VERSION}"
+              bash scripts/prepare-debian-changelog.sh "${VERSION}"
+              mkdir -p /src/site
+              bash scripts/build-apt-repository.sh /src/site "${VERSION}" "${COMMIT}" "${BUILD_DATE}"
+              chown -R "${HOST_UID}:${HOST_GID}" /src/site
+            '
+
+      - name: Import archive signing key
+        id: signing
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+          APT_GPG_KEY_ID: ${{ secrets.APT_GPG_KEY_ID }}
+        run: |
+          test -n "${APT_GPG_PRIVATE_KEY}"
+          export GNUPGHOME="${RUNNER_TEMP}/gnupg"
+          mkdir -p "${GNUPGHOME}"
+          chmod 700 "${GNUPGHOME}"
+          printf '%s' "${APT_GPG_PRIVATE_KEY}" | gpg --batch --import
+          key_id="${APT_GPG_KEY_ID}"
+          if [ -z "${key_id}" ]; then
+            key_id="$(gpg --batch --list-secret-keys --with-colons | awk -F: '$1 == "fpr" { print $10; exit }')"
+          fi
+          test -n "${key_id}"
+          fingerprint="$(gpg --batch --with-colons --fingerprint "${key_id}" | awk -F: '$1 == "fpr" { print $10; exit }')"
+          test -n "${fingerprint}"
+          pretty_fingerprint="$(printf '%s' "${fingerprint}" | sed 's/.\{4\}/& /g; s/ $//')"
+          {
+            echo "gnupg_home=${GNUPGHOME}"
+            echo "key_id=${key_id}"
+            echo "fingerprint=${fingerprint}"
+            echo "pretty_fingerprint=${pretty_fingerprint}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Export archive public key
+        env:
+          GNUPGHOME: ${{ steps.signing.outputs.gnupg_home }}
+        run: |
+          gpg --batch --yes --armor --export "${{ steps.signing.outputs.key_id }}" > site/quotai-archive-keyring.asc
+          gpg --batch --yes --export "${{ steps.signing.outputs.key_id }}" > site/quotai-archive-keyring.gpg
+          printf '%s\n' "${{ steps.signing.outputs.pretty_fingerprint }}" > site/quotai-archive-keyring.fingerprint.txt
+
+      - name: Sign repository metadata
+        env:
+          GNUPGHOME: ${{ steps.signing.outputs.gnupg_home }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          passphrase_args=()
+          if [ -n "${APT_GPG_PASSPHRASE}" ]; then
+            passphrase_args=(--pinentry-mode loopback --passphrase "${APT_GPG_PASSPHRASE}")
+          fi
+          release_file="site/dists/stable/Release"
+          gpg --batch --yes "${passphrase_args[@]}" \
+            --local-user "${{ steps.signing.outputs.key_id }}" \
+            --armor --detach-sign \
+            --output "${release_file}.gpg" \
+            "${release_file}"
+          gpg --batch --yes "${passphrase_args[@]}" \
+            --local-user "${{ steps.signing.outputs.key_id }}" \
+            --clearsign \
+            --output "site/dists/stable/InRelease" \
+            "${release_file}"
+
+      - name: Smoke test signed repository with APT
+        run: |
+          repo_root="$(pwd)/site"
+          apt_root="$(mktemp -d)"
+          mkdir -p \
+            "${apt_root}/etc/apt/keyrings" \
+            "${apt_root}/etc/apt/sources.list.d" \
+            "${apt_root}/var/lib/apt/lists/partial" \
+            "${apt_root}/var/cache/apt/archives/partial" \
+            "${apt_root}/var/lib/dpkg" \
+            "${apt_root}/downloads" \
+            "${apt_root}/src"
+          cp site/quotai-archive-keyring.gpg "${apt_root}/etc/apt/keyrings/"
+          touch "${apt_root}/var/lib/dpkg/status"
+          cat > "${apt_root}/etc/apt/sources.list" <<EOF
+          deb [signed-by=${apt_root}/etc/apt/keyrings/quotai-archive-keyring.gpg] file:${repo_root} stable main
+          deb-src [signed-by=${apt_root}/etc/apt/keyrings/quotai-archive-keyring.gpg] file:${repo_root} stable main
+          EOF
+
+          apt_args=(
+            -o "Dir=${apt_root}"
+            -o "Dir::Etc::sourcelist=${apt_root}/etc/apt/sources.list"
+            -o "Dir::Etc::sourceparts=${apt_root}/etc/apt/sources.list.d"
+            -o "Dir::State::status=${apt_root}/var/lib/dpkg/status"
+            -o "Dir::State::Lists=${apt_root}/var/lib/apt/lists"
+            -o "Dir::Cache::Archives=${apt_root}/var/cache/apt/archives"
+            -o "APT::Architecture=amd64"
+            -o "APT::Get::List-Cleanup=0"
+          )
+
+          apt-get "${apt_args[@]}" update
+          apt-cache "${apt_args[@]}" policy quotai
+          (
+            cd "${apt_root}/downloads"
+            apt-get "${apt_args[@]}" download quotai
+          )
+          (
+            cd "${apt_root}/src"
+            apt-get "${apt_args[@]}" source quotai
+          )
+
+      - name: Compute website release highlights
+        id: website_highlights
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          highlights_json="$(
+            bash scripts/generate-website-highlights.sh "${RELEASE_REF}" \
+              | jq -Rsc 'split("\n") | map(select(length > 0))'
+          )"
+
+          echo "release_highlights_json=${highlights_json}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ env.WEBSITE_DIR }}/package-lock.json
+
+      - name: Build GitHub Pages landing site
+        env:
+          PUBLIC_RELEASE_HIGHLIGHTS_JSON: ${{ steps.website_highlights.outputs.release_highlights_json }}
+        run: |
+          npm ci --prefix "${WEBSITE_DIR}"
+          make website-build \
+            WEBSITE_DIR="${WEBSITE_DIR}" \
+            SITE_URL=${{ steps.meta.outputs.site_url }} \
+            SITE_RELEASE_VERSION=${{ steps.meta.outputs.version }} \
+            SITE_COMMIT=${{ steps.meta.outputs.commit }} \
+            SITE_BUILD_DATE=${{ steps.meta.outputs.build_date }} \
+            SITE_APT_FINGERPRINT="${{ steps.signing.outputs.pretty_fingerprint }}"
+          cp -a "${WEBSITE_DIR}/dist/." site/
+
+      - name: Generate website metadata
+        env:
+          RELEASE_HIGHLIGHTS_JSON: ${{ steps.website_highlights.outputs.release_highlights_json }}
+        run: |
+          jq -n \
+            --arg site_url "${{ steps.meta.outputs.site_url }}" \
+            --arg release_version "${{ steps.meta.outputs.version }}" \
+            --arg commit "${{ steps.meta.outputs.commit }}" \
+            --arg build_date "${{ steps.meta.outputs.build_date }}" \
+            --arg apt_fingerprint "${{ steps.signing.outputs.pretty_fingerprint }}" \
+            --argjson release_highlights "${RELEASE_HIGHLIGHTS_JSON}" \
+            '{
+              site_url: $site_url,
+              release_version: $release_version,
+              commit: $commit,
+              build_date: $build_date,
+              apt_fingerprint: $apt_fingerprint,
+              release_highlights: $release_highlights
+            }' > site/website-metadata.json
+
+      - name: Publish durable repository snapshot branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          snapshot_root="$(mktemp -d)"
+          trap 'rm -rf "${snapshot_root}"' EXIT
+          git init -q "${snapshot_root}"
+          cd "${snapshot_root}"
+          git checkout --orphan pages-snapshot
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -a "${GITHUB_WORKSPACE}/site/." .
+          git add --all
+          git commit -m "pages: snapshot ${RELEASE_REF}"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:pages-snapshot
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    name: Deploy Debian Repository
+    if: |
+      (startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc.')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_ref || '', 'v') && !contains(inputs.release_ref || '', '-rc.'))
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

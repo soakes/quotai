@@ -55,6 +55,11 @@
     "description": "Maintenance, refactors, and tests"
   },
   {
+    "name": "packaging",
+    "color": "5319e7",
+    "description": "Debian package and APT repository changes"
+  },
+  {
     "name": "python",
     "color": "3776ab",
     "description": "Python runtime or packaging changes"
@@ -73,5 +78,10 @@
     "name": "skip-changelog",
     "color": "ffffff",
     "description": "Exclude from generated changelog"
+  },
+  {
+    "name": "website",
+    "color": "0e8a16",
+    "description": "GitHub Pages website changes"
   }
 ]

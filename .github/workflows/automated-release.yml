@@ -78,8 +78,62 @@ jobs:
           echo "stable_tag=${stable_tag}" >> "${GITHUB_OUTPUT}"
           echo "candidate_tag=${stable_tag}-rc.${rc_number}" >> "${GITHUB_OUTPUT}"
 
-      - name: Create and push prerelease tag
+      - name: Update release metadata on main
+        id: metadata
         if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true'
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin "refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" --force
+          remote_sha="$(git rev-parse "refs/remotes/origin/${DEFAULT_BRANCH}")"
+          if [ "${remote_sha}" != "${RELEASE_SHA}" ]; then
+            echo "main has moved from ${RELEASE_SHA} to ${remote_sha}; a newer release workflow run will handle it."
+            echo "updated=true" >> "${GITHUB_OUTPUT}"
+            echo "reason=stale-main" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          bash scripts/update-release-metadata.sh \
+            "${{ steps.candidate.outputs.stable_tag }}" \
+            "${{ steps.release.outputs.previous_tag }}" \
+            "${RELEASE_SHA}"
+
+          if git diff --quiet -- quotai.py pyproject.toml debian/changelog; then
+            echo "updated=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if [ -z "${RELEASE_AUTOMATION_TOKEN:-}" ]; then
+            echo "RELEASE_AUTOMATION_TOKEN is required to push release metadata commits so follow-up validation workflows are triggered." >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add quotai.py pyproject.toml debian/changelog
+          git commit -m "chore(release): update release metadata for ${{ steps.candidate.outputs.stable_tag }}"
+
+          if ! git push \
+            "https://x-access-token:${RELEASE_AUTOMATION_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:refs/heads/${DEFAULT_BRANCH}" 2>push.err; then
+            cat push.err >&2
+            if grep -Eiq 'non-fast-forward|fetch first|stale info|rejected' push.err; then
+              echo "main moved while pushing the release metadata update; a newer release workflow run will handle it."
+              echo "updated=true" >> "${GITHUB_OUTPUT}"
+              echo "reason=stale-main" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            exit 1
+          fi
+
+          echo "updated=true" >> "${GITHUB_OUTPUT}"
+          echo "reason=pushed" >> "${GITHUB_OUTPUT}"
+
+      - name: Create and push prerelease tag
+        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true' && steps.metadata.outputs.updated != 'true'
         env:
           DEFAULT_GH_TOKEN: ${{ github.token }}
           RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
@@ -99,10 +153,9 @@ jobs:
           fi
 
       - name: Dispatch prerelease publish workflow
-        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true'
+        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true' && steps.metadata.outputs.updated != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
         run: |
           set -euo pipefail
@@ -113,11 +166,11 @@ jobs:
           fi
 
           gh workflow run release-assets.yml \
-            --ref "${DEFAULT_BRANCH}" \
+            --ref "${{ steps.candidate.outputs.candidate_tag }}" \
             -f release_ref="${{ steps.candidate.outputs.candidate_tag }}"
 
       - name: Wait for prerelease publish workflow
-        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true'
+        if: steps.existing.outputs.release_required == 'true' && steps.release.outputs.release_required == 'true' && steps.metadata.outputs.updated != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -138,7 +191,14 @@ jobs:
             exit 0
           fi
 
-          printf "Created automated release candidate \`%s\` for stable target \`%s\` (%s bump from \`%s\`).\n" \
+          if [ "${{ steps.metadata.outputs.updated }}" = "true" ]; then
+            printf "Updated release metadata for \`%s\` (%s); release tagging will continue after the metadata commit validates on \`main\`.\n" \
+              "${{ steps.candidate.outputs.stable_tag }}" \
+              "${{ steps.metadata.outputs.reason }}" >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          printf "Created automated release candidate \`%s\` for stable target \`%s\` with matching source versions (%s bump from \`%s\`).\n" \
             "${{ steps.candidate.outputs.candidate_tag }}" \
             "${{ steps.candidate.outputs.stable_tag }}" \
             "${{ steps.release.outputs.bump }}" \

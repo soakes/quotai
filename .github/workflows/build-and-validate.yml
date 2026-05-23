@@ -14,6 +14,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  WEBSITE_DIR: .github/assets/website
+
 jobs:
   quality:
     name: Quality
@@ -38,8 +41,14 @@ jobs:
 
       - name: Check automation files
         run: |
+          bash -n scripts/build-apt-repository.sh
+          bash -n scripts/check-version-consistency.sh
           bash -n scripts/generate-release-notes.sh
+          bash -n scripts/generate-website-highlights.sh
           bash -n scripts/next-release.sh
+          bash -n scripts/prepare-debian-changelog.sh
+          bash -n scripts/update-debian-changelog.sh
+          bash -n scripts/update-release-metadata.sh
           bash -n scripts/wait-for-tag-workflow-runs.sh
           ruby -e 'require "yaml"; ARGV.each { |path| YAML.load_file(path) }' \
             .github/dependabot.yml \
@@ -47,9 +56,33 @@ jobs:
             .github/workflows/automated-release.yml \
             .github/workflows/automation-auto-merge.yml \
             .github/workflows/build-and-validate.yml \
+            .github/workflows/deploy-pages-site.yml \
             .github/workflows/promote-release.yml \
+            .github/workflows/publish-apt-repository.yml \
             .github/workflows/release-assets.yml \
             .github/workflows/release-drafter.yml
+
+      - name: Check version metadata
+        run: make version-check
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ env.WEBSITE_DIR }}/package-lock.json
+
+      - name: Validate GitHub Pages website
+        run: |
+          npm ci --prefix "${WEBSITE_DIR}"
+          npm --prefix "${WEBSITE_DIR}" run check
+          make website-build \
+            WEBSITE_DIR="${WEBSITE_DIR}" \
+            SITE_URL=https://soakes.github.io/quotai/ \
+            SITE_RELEASE_VERSION="0.0.0-ci.${GITHUB_RUN_NUMBER}" \
+            SITE_COMMIT="${GITHUB_SHA}" \
+            SITE_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            SITE_APT_FINGERPRINT="CI preview signing fingerprint"
 
       - name: Check formatting
         run: make fmt-check
@@ -65,6 +98,166 @@ jobs:
 
       - name: Build package
         run: make build
+
+  packaging:
+    name: Validate Debian Package
+    runs-on: ubuntu-latest
+    needs:
+      - quality
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Compute package metadata
+        id: meta
+        run: |
+          echo "version=$(sed -n 's/^version = \"\([^\"]*\)\"/\1/p' pyproject.toml | head -n1)" >> "$GITHUB_OUTPUT"
+          echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Debian package in Debian trixie
+        run: |
+          docker run --rm \
+            -e DEBIAN_FRONTEND=noninteractive \
+            -e VERSION=${{ steps.meta.outputs.version }} \
+            -e COMMIT=${{ github.sha }} \
+            -e BUILD_DATE=${{ steps.meta.outputs.build_date }} \
+            -v "$PWD:/src" \
+            -w /src \
+            debian:trixie \
+            bash -euo pipefail -lc '
+              apt-get update
+              apt-get install -y debhelper build-essential devscripts lintian ca-certificates git python3
+              build_root="$(mktemp -d)"
+              trap '\''rm -rf "${build_root}"'\'' EXIT
+              git config --global --add safe.directory /src
+              git config --global --add safe.directory /src/.git
+              git clone --quiet --no-local /src "${build_root}/source"
+              git config --global --add safe.directory "${build_root}/source"
+              cd "${build_root}/source"
+              bash scripts/check-version-consistency.sh "v${VERSION}"
+              make package
+              deb="$(find "${build_root}" -maxdepth 1 -type f -name "quotai_*_all.deb" | head -n1)"
+              test -n "${deb}"
+              lintian "${deb}"
+              apt-get install -y "${deb}"
+              /usr/bin/quotai --version
+              /usr/bin/quotai --help >/dev/null
+              dpkg -L quotai
+            '
+
+  apt-repository:
+    name: Validate Signed APT Repository Layout
+    runs-on: ubuntu-latest
+    needs:
+      - quality
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Compute package metadata
+        id: meta
+        run: |
+          echo "version=$(sed -n 's/^version = \"\([^\"]*\)\"/\1/p' pyproject.toml | head -n1)" >> "$GITHUB_OUTPUT"
+          echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and smoke test signed APT repository in Debian trixie
+        run: |
+          docker run --rm \
+            -e DEBIAN_FRONTEND=noninteractive \
+            -e VERSION=${{ steps.meta.outputs.version }} \
+            -e COMMIT=${{ github.sha }} \
+            -e BUILD_DATE=${{ steps.meta.outputs.build_date }} \
+            -v "$PWD:/src" \
+            -w /src \
+            debian:trixie \
+            bash -euo pipefail -lc '
+              apt-get update
+              apt-get install -y apt-utils debhelper build-essential devscripts dpkg-dev git gnupg xz-utils python3
+              build_root="$(mktemp -d)"
+              trap '\''rm -rf "${build_root}"'\'' EXIT
+              git config --global --add safe.directory /src
+              git config --global --add safe.directory /src/.git
+              git clone --quiet --no-local /src "${build_root}/source"
+              git config --global --add safe.directory "${build_root}/source"
+              cd "${build_root}/source"
+              bash scripts/check-version-consistency.sh "v${VERSION}"
+              mkdir -p site
+              bash scripts/build-apt-repository.sh site "${VERSION}" "${COMMIT}" "${BUILD_DATE}"
+              test -f site/dists/stable/Release
+              test -f site/dists/stable/main/binary-amd64/Packages
+              test -f site/dists/stable/main/source/Sources
+
+              export GNUPGHOME="$(mktemp -d)"
+              chmod 700 "${GNUPGHOME}"
+              printf "%s\n" \
+                "%no-protection" \
+                "Key-Type: RSA" \
+                "Key-Length: 2048" \
+                "Name-Real: quotai CI APT Signing" \
+                "Name-Email: ci@example.invalid" \
+                "Expire-Date: 0" \
+                "%commit" > /tmp/apt-signing-key.batch
+              gpg --batch --generate-key /tmp/apt-signing-key.batch
+              signing_key="$(gpg --batch --list-secret-keys --with-colons | grep "^fpr:" | head -n1 | cut -d: -f10)"
+              test -n "${signing_key}"
+              gpg --batch --yes --export "${signing_key}" > site/quotai-ci-archive-keyring.gpg
+              release_file="site/dists/stable/Release"
+              gpg --batch --yes \
+                --local-user "${signing_key}" \
+                --armor --detach-sign \
+                --output "${release_file}.gpg" \
+                "${release_file}"
+              gpg --batch --yes \
+                --local-user "${signing_key}" \
+                --clearsign \
+                --output "site/dists/stable/InRelease" \
+                "${release_file}"
+
+              repo_root="$(pwd)/site"
+              apt_root="$(mktemp -d)"
+              mkdir -p \
+                "${apt_root}/etc/apt/keyrings" \
+                "${apt_root}/etc/apt/sources.list.d" \
+                "${apt_root}/var/lib/apt/lists/partial" \
+                "${apt_root}/var/cache/apt/archives/partial" \
+                "${apt_root}/var/lib/dpkg" \
+                "${apt_root}/downloads" \
+                "${apt_root}/src"
+              cp site/quotai-ci-archive-keyring.gpg "${apt_root}/etc/apt/keyrings/"
+              touch "${apt_root}/var/lib/dpkg/status"
+              printf "%s\n" \
+                "deb [signed-by=${apt_root}/etc/apt/keyrings/quotai-ci-archive-keyring.gpg] file:${repo_root} stable main" \
+                "deb-src [signed-by=${apt_root}/etc/apt/keyrings/quotai-ci-archive-keyring.gpg] file:${repo_root} stable main" \
+                > "${apt_root}/etc/apt/sources.list"
+
+              apt_args=(
+                -o "Dir=${apt_root}"
+                -o "Dir::Etc::sourcelist=${apt_root}/etc/apt/sources.list"
+                -o "Dir::Etc::sourceparts=${apt_root}/etc/apt/sources.list.d"
+                -o "Dir::State::status=${apt_root}/var/lib/dpkg/status"
+                -o "Dir::State::Lists=${apt_root}/var/lib/apt/lists"
+                -o "Dir::Cache::Archives=${apt_root}/var/cache/apt/archives"
+                -o "APT::Architecture=amd64"
+                -o "APT::Get::List-Cleanup=0"
+              )
+
+              apt-get "${apt_args[@]}" update
+              apt-cache "${apt_args[@]}" policy quotai
+              (
+                cd "${apt_root}/downloads"
+                apt-get "${apt_args[@]}" download quotai
+              )
+              (
+                cd "${apt_root}/src"
+                apt-get "${apt_args[@]}" source quotai
+              )
+            '
 
   compatibility:
     name: Python ${{ matrix.python-version }}
