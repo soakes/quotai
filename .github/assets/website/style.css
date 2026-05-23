@@ -313,6 +313,17 @@ code,
   margin-top: 0.45em;
 }
 
+.highlights li a {
+  color: var(--green);
+  text-decoration: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.highlights li a:hover {
+  text-decoration: underline;
+}
+
 .install {
   padding: 3rem 0 5rem;
 }
