@@ -1,4 +1,4 @@
-# quotai
+# 📊 Quotai
 
 > A small terminal CLI for showing Z.ai quota usage, remaining capacity, and exact reset times.
 
@@ -18,7 +18,7 @@ This is an unofficial tool and is not affiliated with Z.ai.
 
 **Quick links:** [Website and APT repo](https://soakes.github.io/quotai/) | [Releases](https://github.com/soakes/quotai/releases) | [Usage guide](docs/usage.md) | [Release flow](docs/release.md) | [License](LICENSE)
 
-## Contents
+## 🧭 Contents
 
 - [Overview](#overview)
 - [Capabilities](#capabilities)
@@ -31,7 +31,7 @@ This is an unofficial tool and is not affiliated with Z.ai.
 - [Project Structure](#project-structure)
 - [License](#license)
 
-## Overview
+## 📖 Overview
 
 Z.ai exposes quota information through an authenticated API endpoint. `quotai` turns that response into:
 
@@ -44,7 +44,7 @@ Z.ai exposes quota information through an authenticated API endpoint. `quotai` t
 
 The script has no runtime dependencies outside the Python standard library.
 
-## Capabilities
+## ✨ Capabilities
 
 - Human-friendly terminal panels with colour-coded usage bars
 - Compact one-line output for small terminals and status panes
@@ -56,7 +56,7 @@ The script has no runtime dependencies outside the Python standard library.
 - Timezone control through `--timezone` or `ZAI_TIMEZONE`
 - Installable as a signed Debian package, single executable script, or Python package
 
-## Installation
+## 🚀 Installation
 
 ### Signed APT Repository
 
@@ -103,7 +103,7 @@ cd quotai
 python3 -m pip install .
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 Set your Z.ai API key in the environment:
 
@@ -121,7 +121,7 @@ Supported environment variables:
 
 CLI flags take precedence over environment variables.
 
-## Usage
+## 🧪 Usage
 
 Run the default terminal view:
 
@@ -170,7 +170,7 @@ Exit with code `2` if any quota is at or above 80 percent:
 quotai --threshold 80
 ```
 
-## Output Formats
+## 📋 Output Formats
 
 | Format | Flag | Use case |
 |---|---|---|
@@ -194,7 +194,7 @@ quotai --json | jq '.quotas[] | {quota: .name_compact, local: .resets_at, utc: .
 }
 ```
 
-## Exit Codes
+## 🚪 Exit Codes
 
 | Code | Meaning |
 |---:|---|
@@ -204,7 +204,7 @@ quotai --json | jq '.quotas[] | {quota: .name_compact, local: .resets_at, utc: .
 
 The separate threshold exit code makes it safe to distinguish quota pressure from a broken API key, network failure, or invalid response.
 
-## Development
+## 🛠️ Development
 
 Create a local environment and install the development tools:
 
@@ -242,7 +242,7 @@ Build the website locally:
 make website-build
 ```
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```text
 quotai/
@@ -261,6 +261,6 @@ quotai/
 └── README.md                 # Project overview
 ```
 
-## License
+## 📄 License
 
 `quotai` is released under the [MIT License](LICENSE).
