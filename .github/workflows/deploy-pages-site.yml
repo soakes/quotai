@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_run:
-    workflows:
-      - Publish Signed Debian Repository
-    types:
-      - completed
   workflow_dispatch:
 
 concurrency:
@@ -24,9 +19,6 @@ env:
 jobs:
   build:
     name: Build Pages Site
-    if: |
-      github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       actions: read
