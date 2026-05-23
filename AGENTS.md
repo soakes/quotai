@@ -66,7 +66,7 @@ windows.
 
 ## Coding Style & Naming Conventions
 
-- Python 3.10+ is the minimum supported runtime.
+- Python 3.12+ is the minimum supported runtime.
 - Runtime code must remain stdlib-only. Development dependencies belong in the
   `dev` optional dependency group in `pyproject.toml`.
 - Keep `quotai.py` readable as a single-file CLI: helpers, API parsing, output

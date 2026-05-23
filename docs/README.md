@@ -14,6 +14,6 @@ Use these docs for the longer-form details that do not need to live in the main 
 - Show the exact rolling five-hour reset time without needing to infer it from a chart.
 - Keep normal terminal output readable for humans.
 - Keep JSON output stable enough for scripts and monitoring.
-- Avoid runtime dependencies so the tool can be dropped onto almost any machine with Python 3.10+.
+- Avoid runtime dependencies so the tool can be dropped onto almost any machine with Python 3.12+.
 - Make release validation repeatable through GitHub Actions.
 - Keep committed source versions aligned with the stable release tags.

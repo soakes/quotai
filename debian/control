@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Simon Oakes <813389+soakes@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13),
-               python3:any (>= 3.10)
+               python3:any (>= 3.12)
 Standards-Version: 4.6.2
 Homepage: https://soakes.github.io/quotai/
 Rules-Requires-Root: no
@@ -12,7 +12,7 @@ Vcs-Git: https://github.com/soakes/quotai.git
 
 Package: quotai
 Architecture: all
-Depends: python3:any (>= 3.10),
+Depends: python3:any (>= 3.12),
          ${misc:Depends}
 Description: Z.ai quota usage and reset-time CLI
  quotai queries the Z.ai quota endpoint and renders current usage, remaining

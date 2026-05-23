@@ -5,7 +5,7 @@
 [![Validate](https://img.shields.io/github/actions/workflow/status/soakes/quotai/build-and-validate.yml?branch=main&style=flat-square&label=validate)](https://github.com/soakes/quotai/actions/workflows/build-and-validate.yml)
 [![Release](https://img.shields.io/github/v/release/soakes/quotai?sort=semver&style=flat-square)](https://github.com/soakes/quotai/releases)
 [![APT Repository](https://img.shields.io/badge/APT-signed%20repository-00897B?style=flat-square)](https://soakes.github.io/quotai/)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-2EA043.svg?style=flat-square)](LICENSE)
 [![Stdlib Only](https://img.shields.io/badge/runtime%20deps-zero-10B981.svg?style=flat-square)](quotai.py)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/soakes)
