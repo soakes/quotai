@@ -9,9 +9,11 @@ windows.
 - Keep unit tests in `tests/` and prefer stdlib `unittest` unless the project
   deliberately adopts another test runner.
 - Keep user-facing docs in `README.md` and `docs/`.
+- Keep Debian packaging metadata in `debian/`.
 - Keep release helper scripts in `scripts/`.
 - Keep GitHub Actions, labels, Dependabot, and release-drafter metadata under
   `.github/`.
+- Keep the GitHub Pages landing site under `.github/assets/website/`.
 - Keep root-level files for build, packaging, license, editor, and repository
   metadata only.
 - Do not add GitLab-specific CI, release, or repository metadata to this GitHub
@@ -44,9 +46,21 @@ windows.
   ```bash
   make build
   ```
+- Check version metadata alignment:
+  ```bash
+  make version-check
+  ```
+- Build the GitHub Pages site when touching website assets:
+  ```bash
+  make website-build
+  ```
+- Build the Debian package when a Debian build environment is available:
+  ```bash
+  make package
+  ```
 - Syntax-check release helper scripts after editing them:
   ```bash
-  bash -n scripts/next-release.sh scripts/generate-release-notes.sh scripts/wait-for-tag-workflow-runs.sh
+  bash -n scripts/*.sh
   ```
 
 ## Coding Style & Naming Conventions
@@ -86,14 +100,17 @@ windows.
 - Stable release tags use `v<major>.<minor>.<patch>`.
 - Release candidate tags use `v<major>.<minor>.<patch>-rc.<n>`.
 - Keep `VERSION` in `quotai.py` and `project.version` in `pyproject.toml`
-  aligned unless the release strategy changes deliberately.
+  aligned with the stable target version in `debian/changelog`.
+- Stable release tags must match the committed source version. RC tags are
+  allowed to share the same committed source version as their stable target
+  because promotion points the stable tag at the same commit.
 - Release-note categories and version bump behavior are shared between
   `.github/release-drafter.yml` and `scripts/next-release.sh`; update them
   together.
-- The release automation publishes a curated source archive and
-  `sha256sums.txt`. Do not add container, Debian, APT, or website publishing
-  workflows unless the repository intentionally starts shipping those artifacts
-  and the docs are updated in the same change.
+- The release automation publishes a source archive, Debian package, Debian
+  source package files, `sha256sums.txt`, and a signed stable APT repository on
+  GitHub Pages.
+- Keep APT keyring filenames under the `quotai-archive-keyring.*` pattern.
 - Keep `Makefile` as the contributor-facing source of truth for common local
   validation commands.
 
@@ -103,6 +120,8 @@ windows.
   codes, environment variables, or installation behavior change.
 - Update `docs/release.md` when release workflows, tag rules, or published
   artifacts change.
+- Update the GitHub Pages website when installation, artifact, or APT repository
+  behavior changes.
 - Update the project structure section in `README.md` when top-level files or
   directories change.
 - Keep examples realistic, copyable, and free of real secrets.
@@ -122,6 +141,8 @@ windows.
 - Never broaden auto-approval to general contributor pull requests.
 - Release and publish tags must point to commits already contained in `main`;
   keep that verification in place.
+- Stable APT publishing must remain limited to stable `v<major>.<minor>.<patch>`
+  tags. Do not publish prerelease tags to the stable APT repository.
 - Do not broaden token permissions, expose secrets to pull requests, or add
   publish jobs without documenting the operational need.
 
@@ -156,5 +177,7 @@ make test
 make smoke
 ```
 
-If packaging or release metadata changes, also run script syntax checks and
-`make build` when the local Python environment has the build tooling installed.
+If packaging, release metadata, or website assets change, also run script syntax
+checks, `make version-check`, and `make build` when the local Python environment
+has the build tooling installed. Run `make package` and `make website-build`
+when the required Debian and Node.js tooling is available.

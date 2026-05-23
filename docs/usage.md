@@ -2,6 +2,29 @@
 
 This guide covers day-to-day use of `quotai`.
 
+## Installation
+
+On Debian and Ubuntu hosts, install from the signed APT repository:
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://soakes.github.io/quotai/quotai-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/quotai-archive-keyring.gpg >/dev/null
+
+sudo tee /etc/apt/sources.list.d/quotai.sources >/dev/null <<'EOF'
+Types: deb deb-src
+URIs: https://soakes.github.io/quotai/
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/quotai-archive-keyring.gpg
+EOF
+
+sudo apt update
+sudo apt install quotai
+```
+
+The release archive and standalone script are also published from the GitHub releases page.
+
 ## Authentication
 
 `quotai` expects a Z.ai API key. The safest normal setup is to keep it in your shell environment:

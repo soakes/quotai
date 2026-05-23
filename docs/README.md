@@ -1,13 +1,13 @@
 # quotai Documentation
 
-`quotai` is intentionally small: one Python CLI, no runtime dependencies, and output that makes Z.ai reset windows obvious.
+`quotai` is intentionally small: one Python CLI, no runtime dependencies, and output that makes Z.ai reset windows obvious. Public releases include GitHub assets, a Debian package, and a signed APT repository.
 
 Use these docs for the longer-form details that do not need to live in the main README.
 
 ## Guides
 
-- [Usage Guide](usage.md) - installation, configuration, examples, output formats, and troubleshooting
-- [Release Flow](release.md) - how the GitHub release automation is expected to work
+- [Usage Guide](usage.md) - APT installation, configuration, examples, output formats, and troubleshooting
+- [Release Flow](release.md) - GitHub release, Debian package, APT repository, and Pages automation
 
 ## Design Goals
 
@@ -16,3 +16,4 @@ Use these docs for the longer-form details that do not need to live in the main 
 - Keep JSON output stable enough for scripts and monitoring.
 - Avoid runtime dependencies so the tool can be dropped onto almost any machine with Python 3.10+.
 - Make release validation repeatable through GitHub Actions.
+- Keep committed source versions aligned with the stable release tags.

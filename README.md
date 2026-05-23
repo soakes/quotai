@@ -4,6 +4,7 @@
 
 [![Validate](https://img.shields.io/github/actions/workflow/status/soakes/quotai/build-and-validate.yml?branch=main&style=flat-square&label=validate)](https://github.com/soakes/quotai/actions/workflows/build-and-validate.yml)
 [![Release](https://img.shields.io/github/v/release/soakes/quotai?sort=semver&style=flat-square)](https://github.com/soakes/quotai/releases)
+[![APT Repository](https://img.shields.io/badge/APT-signed%20repository-00897B?style=flat-square)](https://soakes.github.io/quotai/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-2EA043.svg?style=flat-square)](LICENSE)
 [![Stdlib Only](https://img.shields.io/badge/runtime%20deps-zero-10B981.svg?style=flat-square)](quotai.py)
@@ -15,7 +16,7 @@ The default output is for humans. JSON, JSON Lines, compact, and raw modes are a
 
 This is an unofficial tool and is not affiliated with Z.ai.
 
-**Quick links:** [Releases](https://github.com/soakes/quotai/releases) | [Usage guide](docs/usage.md) | [Release flow](docs/release.md) | [License](LICENSE)
+**Quick links:** [Website and APT repo](https://soakes.github.io/quotai/) | [Releases](https://github.com/soakes/quotai/releases) | [Usage guide](docs/usage.md) | [Release flow](docs/release.md) | [License](LICENSE)
 
 ## Contents
 
@@ -53,9 +54,30 @@ The script has no runtime dependencies outside the Python standard library.
 - Watch mode for a live refreshing quota dashboard
 - Threshold mode with a separate exit code for cron and shell scripts
 - Timezone control through `--timezone` or `ZAI_TIMEZONE`
-- Installable as a single executable script or as a Python package
+- Installable as a signed Debian package, single executable script, or Python package
 
 ## Installation
+
+### Signed APT Repository
+
+For Debian and Ubuntu hosts, use the signed GitHub Pages APT repository:
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://soakes.github.io/quotai/quotai-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/quotai-archive-keyring.gpg >/dev/null
+
+sudo tee /etc/apt/sources.list.d/quotai.sources >/dev/null <<'EOF'
+Types: deb deb-src
+URIs: https://soakes.github.io/quotai/
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/quotai-archive-keyring.gpg
+EOF
+
+sudo apt update
+sudo apt install quotai
+```
 
 ### Download the Script
 
@@ -199,6 +221,7 @@ make fmt-check
 make lint
 make test
 make smoke
+make version-check
 ```
 
 Format code:
@@ -213,15 +236,24 @@ Build a Python package:
 make build
 ```
 
+Build the website locally:
+
+```bash
+make website-build
+```
+
 ## Project Structure
 
 ```text
 quotai/
 ├── quotai.py                 # CLI application
 ├── tests/                    # Stdlib unittest coverage
+├── debian/                   # Debian package metadata
 ├── docs/                     # Usage and release documentation
 ├── scripts/                  # Release helper scripts
-├── .github/                  # GitHub Actions and release metadata
+├── .github/
+│   ├── assets/website/       # GitHub Pages landing site
+│   └── workflows/            # GitHub Actions release automation
 ├── AGENTS.md                 # Repository rules for coding agents
 ├── pyproject.toml            # Packaging and tool configuration
 ├── Makefile                  # Local validation shortcuts
