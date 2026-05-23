@@ -1,3 +1,24 @@
+quotai (1.0.1-1) stable; urgency=medium
+
+  * Avoid redundant Pages redeploy after APT publish.
+  * Add emoji section headings and title case to README.
+  * Fix TOC anchors with hidden id tags for emoji headings.
+  * Add emoji prefixes to TOC link text.
+  * Hyperlink Z.ai in disclaimer.
+  * Improve website footer layout with branding and navigation.
+  * Redesign website footer with multi-column layout.
+  * Use RELEASE_AUTOMATION_TOKEN for pages snapshot push.
+  * Redesign release details panel and revert pages-snapshot to github.token.
+  * Redesign release details with two-column layout.
+  * Tighten footer spacing and sizing.
+  * Update title to QuotAI.
+  * Update branding to QuotAI with bar chart logo.
+  * Update copyright and link commit SHAs in release highlights.
+  * Remove spacing around commit SHA links in highlights.
+  * Include parentheses inside commit SHA link text.
+
+ -- Simon Oakes <813389+soakes@users.noreply.github.com>  Sat, 23 May 2026 16:35:28 +0000
+
 quotai (1.0.0-1) stable; urgency=medium
 
   * Initial public release.
