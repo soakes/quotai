@@ -177,16 +177,15 @@ sudo install -m 0755 quotai-${metadata.releaseNumber}/quotai.py /usr/local/bin/q
     highlightsList.replaceChildren(
       ...metadata.releaseHighlights.map((highlight) => {
         const item = document.createElement('li');
-        const match = highlight.match(/^(.*\()([0-9a-f]{7,40})(\))$/);
+        const match = highlight.match(/^(.*\()([0-9a-f]{7,40})\)$/);
         if (match) {
           item.appendChild(document.createTextNode(match[1]));
           const link = document.createElement('a');
           link.href = `https://github.com/soakes/quotai/commit/${match[2]}`;
-          link.textContent = match[2];
+          link.textContent = `${match[2]})`;
           link.target = '_blank';
           link.rel = 'noopener';
           item.appendChild(link);
-          item.appendChild(document.createTextNode(')'));
         } else {
           item.textContent = highlight;
         }
