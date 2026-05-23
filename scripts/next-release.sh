@@ -7,8 +7,7 @@ latest_tag="$(
     | head -n1 || true
 )"
 initial_version="$(
-  sed -n 's/^version = "\([^"]*\)".*/\1/p' pyproject.toml \
-    | head -n1 || true
+  sed -n '1s/^[^(]*(\([^)]*\)).*/\1/p' debian/changelog 2>/dev/null | sed 's/-[^-]*$//' || true
 )"
 
 if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
@@ -70,7 +69,7 @@ bump_level="$(
         next
       }
 
-      if (subject ~ /^(fix|perf|revert|build|deps|release)(\([^)]+\))?: /) {
+      if (subject ~ /^(fix|perf|revert|build|deps|packaging|release)(\([^)]+\))?: /) {
         if (level < 1) {
           level = 1
         }

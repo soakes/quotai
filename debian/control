@@ -1,0 +1,21 @@
+Source: quotai
+Section: utils
+Priority: optional
+Maintainer: Simon Oakes <813389+soakes@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13),
+               python3:any (>= 3.10)
+Standards-Version: 4.6.2
+Homepage: https://soakes.github.io/quotai/
+Rules-Requires-Root: no
+Vcs-Browser: https://github.com/soakes/quotai
+Vcs-Git: https://github.com/soakes/quotai.git
+
+Package: quotai
+Architecture: all
+Depends: python3:any (>= 3.10),
+         ${misc:Depends}
+Description: Z.ai quota usage and reset-time CLI
+ quotai queries the Z.ai quota endpoint and renders current usage, remaining
+ capacity, and exact reset windows in readable terminal and machine-readable
+ formats. It is useful when the upstream usage charts do not show enough detail
+ about rolling quota resets.

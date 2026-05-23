@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+PACKAGE := $(shell dh_listpackages)
+TMP := $(CURDIR)/debian/$(PACKAGE)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	:
+
+override_dh_auto_install:
+	install -d $(TMP)/usr/bin
+	install -m 0755 quotai.py $(TMP)/usr/bin/quotai
+
+override_dh_auto_test:
+ifneq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),nocheck)
+	python3 -m unittest discover -s tests
+	python3 -m py_compile quotai.py
+endif

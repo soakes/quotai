@@ -16,6 +16,8 @@ if [ -n "${previous_tag}" ]; then
 fi
 
 mkdir -p "$(dirname "${output}")"
+asset_version="${release_ref#v}"
+debian_version="${asset_version/-rc./~rc.}"
 
 {
   printf "## Included Changes\n\n"
@@ -28,6 +30,9 @@ mkdir -p "$(dirname "${output}")"
   fi
 
   printf "## Published Artifacts\n\n"
-  printf -- "- \`quotai-%s.tar.gz\`\n" "${release_ref#v}"
+  printf -- "- \`quotai-%s.tar.gz\`\n" "${asset_version}"
+  printf -- "- Debian package \`quotai_%s-1_all.deb\`\n" "${debian_version}"
+  printf -- "- Debian source package files\n"
+  printf -- "- Signed APT repository metadata on GitHub Pages for stable releases\n"
   printf -- "- \`sha256sums.txt\`\n"
 } > "${output}"

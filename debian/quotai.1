@@ -1,0 +1,68 @@
+.TH QUOTAI 1 "May 2026" "quotai" "User Commands"
+.SH NAME
+quotai \- show Z.ai quota usage and exact reset windows
+.SH SYNOPSIS
+.B quotai
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B quotai
+queries the Z.ai quota endpoint and prints current quota usage, remaining
+capacity, and reset timing. The default output is a human-readable terminal
+view; JSON, JSON Lines, compact, and raw modes are available for automation.
+.SH OPTIONS
+.TP
+.B \-\-version
+Show the program version.
+.TP
+.B \-j, \-\-json
+Output formatted JSON.
+.TP
+.B \-\-jsonl
+Output JSON Lines.
+.TP
+.B \-\-raw
+Print the raw API response.
+.TP
+.B \-c, \-\-compact
+Print one compact line per quota.
+.TP
+.B \-\-no-color
+Disable ANSI color output.
+.TP
+.B \-z, \-\-timezone \fITIMEZONE\fR
+Display reset times in an IANA timezone.
+.TP
+.B \-\-api-key \fIKEY\fR
+Z.ai API key. Defaults to the ZAI_API_KEY environment variable.
+.TP
+.B \-\-api-url \fIURL\fR
+Quota endpoint URL. Defaults to the ZAI_API_URL environment variable or the
+built-in Z.ai quota endpoint.
+.TP
+.B \-w, \-\-watch \fISECONDS\fR
+Refresh output every N seconds.
+.TP
+.B \-t, \-\-threshold \fIPERCENT\fR
+Exit with code 2 if any quota usage is at or above PERCENT.
+.SH ENVIRONMENT
+.TP
+.B ZAI_API_KEY
+Bearer token used to query the quota endpoint.
+.TP
+.B ZAI_API_URL
+Optional replacement quota endpoint.
+.TP
+.B ZAI_TIMEZONE
+Default display timezone.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Runtime or input error.
+.TP
+.B 2
+Threshold exceeded.
+.SH AUTHOR
+Simon Oakes
