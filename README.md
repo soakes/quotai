@@ -14,7 +14,7 @@
 
 The default output is for humans. JSON, JSON Lines, compact, and raw modes are available for scripts, dashboards, cron jobs, and debugging.
 
-This is an unofficial tool and is not affiliated with Z.ai.
+This is an unofficial tool and is not affiliated with [Z.ai](https://z.ai).
 
 **Quick links:** [Website and APT repo](https://soakes.github.io/quotai/) | [Releases](https://github.com/soakes/quotai/releases) | [Usage guide](docs/usage.md) | [Release flow](docs/release.md) | [License](LICENSE)
 
