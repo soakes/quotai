@@ -21,16 +21,16 @@ This is an unofficial tool and is not affiliated with Z.ai.
 <a id="contents"></a>
 ## 🧭 Contents
 
-- [Overview](#overview)
-- [Capabilities](#capabilities)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Output Formats](#output-formats)
-- [Exit Codes](#exit-codes)
-- [Development](#development)
-- [Project Structure](#project-structure)
-- [License](#license)
+- [📖 Overview](#overview)
+- [✨ Capabilities](#capabilities)
+- [🚀 Installation](#installation)
+- [⚙️ Configuration](#configuration)
+- [🧪 Usage](#usage)
+- [📋 Output Formats](#output-formats)
+- [🚪 Exit Codes](#exit-codes)
+- [🛠️ Development](#development)
+- [🗂️ Project Structure](#project-structure)
+- [📄 License](#license)
 
 <a id="overview"></a>
 ## 📖 Overview
