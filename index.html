@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="QuotAI - Z.ai quota visibility with exact reset windows. Install via Homebrew, APT, or standalone script." />
+    <meta name="theme-color" content="#101820" />
+    <link rel="icon" href="./assets/favicon-CHy7vUwn.svg" type="image/svg+xml" />
+    <title>QuotAI | Z.ai quota reset visibility</title>
+    <script type="module" crossorigin src="./assets/index-Cfu-lEfm.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-bQh0Dxuw.css">
+  </head>
+  <body>
+    <header class="masthead wrapper">
+      <a class="brand" href="#" id="site-url-link">
+              <span class="brand-mark"><svg viewBox="0 0 32 32" width="16" height="16" fill="none"><rect x="3" y="18" width="5" height="11" rx="1.5" fill="currentColor" opacity="0.5"/><rect x="10" y="12" width="5" height="17" rx="1.5" fill="currentColor" opacity="0.75"/><rect x="17" y="6" width="5" height="23" rx="1.5" fill="currentColor"/><rect x="24" y="15" width="5" height="14" rx="1.5" fill="currentColor" opacity="0.35"/></svg></span>
+        <span>
+              <strong>QuotAI</strong>
+          <small>Z.ai quota visibility</small>
+        </span>
+      </a>
+      <nav class="masthead-links">
+        <a href="https://github.com/soakes/quotai/releases">Releases</a>
+        <a href="#" id="nav-apt-link">APT</a>
+        <a href="https://github.com/soakes/quotai#readme">README</a>
+        <a href="https://github.com/soakes/quotai">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero wrapper">
+        <div class="hero-copy">
+          <p class="eyebrow">Quota windows without guesswork</p>
+          <h1>See exactly when your Z.ai quota resets.</h1>
+          <p class="hero-lead">
+            QuotAI turns sparse usage charts into a terminal view with exact
+            rolling reset times, local timezone rendering, and JSON fields for
+            automation.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#install">Install</a>
+            <a class="btn btn-secondary" href="https://github.com/soakes/quotai/releases">Download release</a>
+          </div>
+        </div>
+
+        <aside class="terminal-shot" aria-label="QuotAI terminal output preview">
+          <div class="terminal-top">
+            <span></span><span></span><span></span>
+          </div>
+          <pre><code>$ quotai --compact
+Plan: pro
+  5h-rolling   [████████░░]  82%  left: 180.0k  reset: 42m
+  weekly       [██░░░░░░░░]  21%  left:   7.9M  reset: 5d 18h
+  tool/search  [░░░░░░░░░░]   0%  left:   1.0k  reset: 29d
+
+$ quotai --json | jq '.quotas[0].resets_at_utc'
+"2026-05-23T14:00:00Z"</code></pre>
+        </aside>
+      </section>
+
+      <section class="metadata wrapper">
+        <div class="section-heading">
+          <p class="eyebrow">Release details</p>
+          <h2>Latest stable build information.</h2>
+        </div>
+        <div class="release-grid">
+          <div class="release-info">
+            <div class="release-stats">
+              <div class="release-stat">
+                <span class="stat-value" id="ui-version">Loading...</span>
+                <span class="stat-label">Version</span>
+              </div>
+              <div class="release-stat">
+                <span class="stat-value mono" id="ui-commit">---</span>
+                <span class="stat-label">Commit</span>
+              </div>
+              <div class="release-stat">
+                <span class="stat-value" id="ui-date">---</span>
+                <span class="stat-label">Published</span>
+              </div>
+            </div>
+            <div class="fingerprint-row">
+              <span class="fingerprint-label">APT signing key</span>
+              <code id="ui-fingerprint">---</code>
+            </div>
+          </div>
+          <div class="release-highlights">
+            <span class="highlights-title">Release highlights</span>
+            <ul id="ui-highlights" class="highlights">
+              <li>Loading release highlights...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="install wrapper">
+        <div class="section-heading">
+          <p class="eyebrow">Install paths</p>
+          <h2>Get started with your preferred install method.</h2>
+        </div>
+        <div class="install-tabs">
+          <div class="tab-bar" role="tablist">
+            <button class="tab active" role="tab" data-tab="homebrew">Homebrew</button>
+            <button class="tab" role="tab" data-tab="apt">Signed APT</button>
+            <button class="tab" role="tab" data-tab="archive">Release archive</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="panel-homebrew" role="tabpanel">
+              <div class="tab-description">
+                <span class="install-badge">Recommended</span>
+                <p>macOS and Linux. Receives automatic updates on each stable release.</p>
+              </div>
+              <div class="code-block">
+<pre><code>brew tap soakes/quotai
+brew install quotai</code></pre>
+              </div>
+            </div>
+            <div class="tab-panel" id="panel-apt" role="tabpanel">
+              <div class="tab-description">
+                <p>Debian and Ubuntu hosts. Receives signed package updates via a dedicated APT repository.</p>
+              </div>
+              <div class="code-block" id="apt-code-container">
+<pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://soakes.github.io/quotai/quotai-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/quotai-archive-keyring.gpg >/dev/null
+
+sudo tee /etc/apt/sources.list.d/quotai.sources >/dev/null &lt;&lt;'EOF'
+Types: deb deb-src
+URIs: https://soakes.github.io/quotai/
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/quotai-archive-keyring.gpg
+EOF
+
+sudo apt update && sudo apt install quotai</code></pre>
+              </div>
+            </div>
+            <div class="tab-panel" id="panel-archive" role="tabpanel">
+              <div class="tab-description">
+                <p>Any machine with Python 3.12 or newer. Download, extract, and run.</p>
+              </div>
+              <div class="code-block" id="archive-code-container">
+<pre><code>curl -fsSL https://github.com/soakes/quotai/releases/latest/download/quotai-1.0.0.tar.gz -o quotai.tar.gz
+tar -xzf quotai.tar.gz
+sudo install -m 0755 quotai-1.0.0/quotai.py /usr/local/bin/quotai</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner wrapper">
+        <div class="footer-top">
+          <div class="footer-about">
+            <div class="footer-logo">
+        <span class="brand-mark"><svg viewBox="0 0 32 32" width="22" height="22" fill="none"><rect x="3" y="18" width="5" height="11" rx="1.5" fill="currentColor" opacity="0.5"/><rect x="10" y="12" width="5" height="17" rx="1.5" fill="currentColor" opacity="0.75"/><rect x="17" y="6" width="5" height="23" rx="1.5" fill="currentColor"/><rect x="24" y="15" width="5" height="14" rx="1.5" fill="currentColor" opacity="0.35"/></svg></span>
+          <strong>QuotAI</strong>
+            </div>
+            <p>Exact quota reset visibility for Z.ai users. Zero dependencies, one script, any machine.</p>
+          </div>
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Product</h4>
+              <a href="https://github.com/soakes/quotai/releases">Releases</a>
+              <a href="#install">Install</a>
+              <a href="https://github.com/soakes/quotai/blob/main/CHANGELOG.md">Changelog</a>
+            </div>
+            <div class="footer-col">
+              <h4>Resources</h4>
+              <a href="https://github.com/soakes/quotai#readme">Documentation</a>
+              <a href="https://github.com/soakes/quotai/issues">Issues</a>
+              <a href="https://github.com/soakes/quotai">Source</a>
+            </div>
+            <div class="footer-col">
+              <h4>Community</h4>
+              <a href="https://buymeacoffee.com/soakes">Sponsor</a>
+              <a href="https://github.com/soakes/quotai/discussions">Discussions</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span class="footer-copy">&copy; 2026 Simon Oakes &mdash; MIT License</span>
+          <span class="footer-build">
+            v<span id="footer-version">---</span>
+            &middot;
+            <span id="footer-commit" class="mono">---</span>
+          </span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

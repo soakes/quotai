@@ -1,0 +1,20 @@
+Package: quotai
+Version: 1.1.0-1
+Architecture: all
+Maintainer: Simon Oakes <813389+soakes@users.noreply.github.com>
+Installed-Size: 39
+Depends: python3:any (>= 3.12)
+Filename: pool/main/q/quotai/quotai_1.1.0-1_all.deb
+Size: 11672
+MD5sum: abc1ae0785f4c0f0750bce340d6792ae
+SHA1: 77824ff34e511c5c30dc3ddb20646d194b84dbcb
+SHA256: 2923c6ca06bc80ed9f359be5fcf502c268060511ed225be600dada70e5db2af8
+Section: utils
+Priority: optional
+Homepage: https://soakes.github.io/quotai/
+Description: Z.ai quota usage and reset-time CLI
+ quotai queries the Z.ai quota endpoint and renders current usage, remaining
+ capacity, and exact reset windows in readable terminal and machine-readable
+ formats. It is useful when the upstream usage charts do not show enough detail
+ about rolling quota resets.
+

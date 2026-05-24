@@ -1,0 +1,12 @@
+{
+  "site_url": "https://soakes.github.io/quotai/",
+  "release_version": "v1.1.0",
+  "commit": "972eb302ecd403a9d96e3cb45d1f4bcfbfee2a97",
+  "build_date": "2026-05-23T17:34:13Z",
+  "apt_fingerprint": "91E3 9C96 585A B047 7219 6F81 890C 9FCC 28C9 AD66",
+  "release_highlights": [
+    "feat: add Homebrew formula and publish workflow (741e28d)",
+    "chore(release): update release metadata for v1.1.0 (2c1c16d)",
+    "fix: use python 3.13 instead of EOL 3.10 (a2b24e5)"
+  ]
+}
