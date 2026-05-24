@@ -1,6 +1,9 @@
 # 📊 QuotAI
 
 > A small terminal CLI for showing Z.ai quota usage, remaining capacity, and exact reset times.
+>
+> **quotai** — pronounced *quota-eye*.
+> Keeping an eye on your AI quota.
 
 [![Validate](https://img.shields.io/github/actions/workflow/status/soakes/quotai/build-and-validate.yml?branch=main&style=flat-square&label=validate)](https://github.com/soakes/quotai/actions/workflows/build-and-validate.yml)
 [![Release](https://img.shields.io/github/v/release/soakes/quotai?sort=semver&style=flat-square)](https://github.com/soakes/quotai/releases)
