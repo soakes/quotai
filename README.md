@@ -10,7 +10,7 @@
 [![Stdlib Only](https://img.shields.io/badge/runtime%20deps-zero-10B981.svg?style=flat-square)](quotai.py)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/soakes)
 
-`quotai` queries the Z.ai quota endpoint and renders the result in a terminal view that is easy to read at a glance. It was built because the Z.ai usage charts are useful, but they do not make the rolling five-hour reset window and exact reset time clear enough when you are trying to plan work.
+Keeping an eye on your AI quota. `quotai` (pronounced *quota-eye*) queries the Z.ai quota endpoint and renders the result in a terminal view that is easy to read at a glance. It was built because the Z.ai usage charts are useful, but they do not make the rolling five-hour reset window and exact reset time clear enough when you are trying to plan work.
 
 The default output is for humans. JSON, JSON Lines, compact, and raw modes are available for scripts, dashboards, cron jobs, and debugging.
 
